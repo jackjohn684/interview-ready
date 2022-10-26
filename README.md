@@ -1,4 +1,7 @@
-### Hi there 👋
+### Interview Ready
+
+The goal of this project is to prepare software engineers for coding interviews and give meaningful direction in where they should spend their preparation time.
+
 
 <!--
 **interviewreadyext/InterviewReadyExt** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
