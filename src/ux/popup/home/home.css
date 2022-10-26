@@ -1,0 +1,46 @@
+/** unset */
+
+body {
+    font-size: unset;
+}
+
+button {
+    font-size: unset;
+    font-family: unset;
+    font-weight: unset;
+
+}
+
+
+/** classes */
+
+.homecontainer {
+    width: 340px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 18px;
+}
+
+.alert {
+    font-weight: bold;
+}
+
+.topicStatus .ready {
+    color:green;
+}
+
+.topicStatus .almost {
+    color:orange;
+}
+
+.topicStatus .notReady {
+    color:red;
+}
+
+.topicStatus button.practice {
+    background-image: url('/ux/images/clickAndGoIcon.png');
+    background-size: 14px 14px;
+    width: 14px;
+    height: 14px;
+    border: unset;
+    margin-left:8px;
+}
