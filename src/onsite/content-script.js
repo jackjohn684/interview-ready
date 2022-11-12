@@ -13,6 +13,10 @@ function updateProficiencies(questions, submissionTimes, discussionTimes, viewTi
       var question = questions[i];
       if(question.difficulty != 'Easy' && question.acRate < 55.0) {
           value = 1;
+      } else if (question.difficulty != 'Easy' && question.acRate >= 55.0) {
+        value = .5
+      } else {
+        value = .25
       }
   
       for(var j=0; j<question.topicTags.length; j++) {
