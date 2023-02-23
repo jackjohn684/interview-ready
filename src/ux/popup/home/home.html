@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="../../../shared-constants/shared-constants.js"></script>
+      <!-- Page static scripts -->
+      <script src="/shared/functions.js"></script>
+      <script src="/shared/data-keys.js"></script>
     <link rel="stylesheet" href="home.css">
   </head>
   <body>
@@ -12,8 +14,14 @@
         <br>
         <button id="signInToLeetCode">Sign in to LeetCode</button>
       </div>
+      <div id="loading" class="loading-container" hidden="true">
+        <div class='loading-text'>Loading</div>
+        <img class='loading-ani' src='/ux/images/loading.png'>
+      </div>
       <div id="currentReadiness"></div>
     </div>
+
+    <!-- DOM Affecting Scripts -->
     <script src="home.js"></script>
   </body>
 </html>

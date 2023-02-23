@@ -5,3 +5,9 @@ Be smarter about not querying for data we already have (page seems to reload a l
 Update the "ready" algorithm to be midterm replacement ready
 
 Only grab all the medium problems static metadata daily.
+
+
+
+
+Future product ideas:
+Should only count problems that were solved in the past month!

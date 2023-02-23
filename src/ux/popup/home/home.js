@@ -13,81 +13,91 @@ function signIntoLeetCode() {
 document.getElementById("signInToLeetCode").onclick = signIntoLeetCode;
 
 function showColdStart() {
-    showHideColdStart(false);
+    showHideById("coldStart", false)
 }
 
 function hideColdStart() {
-    showHideColdStart(true);
+    showHideById("coldStart", true);
 }
 
-function showHideColdStart(shouldHide) {
-    document.getElementById("coldStart").hidden = shouldHide;
+function showProgress() {
+    showHideById("loading", false);
+}
+
+function hideProgress() {
+    showHideById("loading", true);
+}
+
+function showHideById(id, shouldHide) {
+    document.getElementById(id).hidden = shouldHide;
 }
 ///////////////////////////////////////////////////////////////////////
 
 
 
 
-///////////////// Render Interview Ready by Topic Table ///////////////
+///////////////// Render ///////////////
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    delog("Recieved message!");
+    delog(msg);
+    delog(sender);
+    if(msg && msg.key == DATA_KEY_RERENDER) { 
+        render();
+        sendResponse({success:true});
+    }
+  });
+
 render();
 
-function render () {
-    var data = chrome.storage.sync.get(["solved", "user_status"], rednerWithData);
-}
+async function render() {
 
-function rednerWithData(data) {
+    let isSignedIn = (await SendMessage(DATA_KEY_GET_USER_IS_SIGNED_IN)).result;
+    delog(`isSignedIn==${isSignedIn}`);
 
-    console.log('renderReadiness');
-    console.log(data);
-    
-    if(!data || !data.user_status.isSignedIn) {
+    if (!isSignedIn) {
         showColdStart();
         return;
     } else {
         hideColdStart();
     }
 
-    var targetTopics = ['hash-table','string','linked-list','queue','dynamic-programming','array','sorting','heap-priority-queue',
-        'depth-first-search','breadth-first-search'];
-
+    let topicData = (await SendMessage(DATA_KEY_GET_TOPIC_READINESS)).result;
     var readiness = document.getElementById("currentReadiness");
-    readiness.innerHTML='';
-    var midtermTopicsNotCovered = new Set(targetTopics);
+    readiness.innerHTML = '';
+
+
+    if(!topicData) {
+        showProgress();
+        return;
+    }
+
+    hideProgress();
+    
+    var sortedTopicProficiency = Object.entries(topicData).sort((a, b) => {
+        return b[1][1] - a[1][1];
+    });
+
     var readinessHtmlFunc = (styleClass, text, topic) => {
         return `<div class="topicStatus"><font class='${styleClass}'>${topic} - ${text}</font><button class="practice" data-topic='${topic}'></button></div>`;
     };
 
-    var addReadiness = (styleClass, text, topic) => readiness.innerHTML += readinessHtmlFunc(styleClass,text,topic);
+    var addReadiness = (styleClass, text, topic) => readiness.innerHTML += readinessHtmlFunc(styleClass, text, topic);
 
 
-    data.solved.forEach(element => {
+    sortedTopicProficiency.forEach(element => {
         var topic = element[0];
-        if(targetTopics.includes(topic)) {
-            midtermTopicsNotCovered.delete(topic);
-            var readinessScore = element[1];
-            var normalizedReadinessScore = readinessScore / 5.0;
-            var readinessScoreFormattedAsPercent = '%' + (100.0*normalizedReadinessScore).toFixed();
-
-            if(normalizedReadinessScore >= 1.0) {
-                addReadiness("ready", "Ready", topic);
-            } else if (normalizedReadinessScore > .7) {
-                addReadiness("almost", readinessScoreFormattedAsPercent, topic);
-            } else {
-                addReadiness("notReady", readinessScoreFormattedAsPercent, topic)
-            }
-        }
-    });
-
-    midtermTopicsNotCovered.forEach((topic) => {
-        addReadiness("notReady", "Not attempted", topic);
+        var readinessPercent = element[1][1];
+        var designation = element[1][0];
+        var readinessScoreFormattedAsPercent = '%' + readinessPercent.toFixed();
+        addReadiness(designation, designation == "ready" ? "Ready": readinessScoreFormattedAsPercent, topic);
     });
 
     var items = document.getElementsByClassName("practice");
-    for(var i=0; i<items.length; i++) {
+    for (var i = 0; i < items.length; i++) {
         let button = items[i];
-        button.addEventListener("click", function () { 
-            onTopicClick(button.getAttribute("data-topic")); 
-        }); 
+        button.addEventListener("click", function () {
+            onTopicClick(button.getAttribute("data-topic"));
+        });
     }
 };
 /////////////////////////////////////////////////////////////////////////
@@ -96,29 +106,13 @@ function rednerWithData(data) {
 
 ///////  Practice Selection Logic ////////////////////////////////////////
 function onTopicClick(topic) {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-      var tab = tabs[0];
-      chrome.storage.local.get("medium_problems", (problems) => {
-        var filteredList = [];
-        problems.medium_problems.forEach((problem) => {
-          if(
-            problem.acRate > 40.0 && 
-            problem.status !== "ac" &&
-            problem.acRate < 55.0 && 
-            problem.topicTags.find((topicTag)=> topicTag.slug === topic) &&
-            !problem.paidOnly
-            ) {
-              filteredList.push(problem);
-          }
-        });
-    
-        if(filteredList.length == 0) throw new Error("No acceptable problem found!");
-        var randomSelection = filteredList[Math.floor(Math.random() * filteredList.length)];
-        var url = `https://leetcode.com/problems/${randomSelection.titleSlug}/`;
-        chrome.tabs.update(tab.id, {url: url});
-        
-        window.close();
-      });
+    chrome.tabs.query({ active: true, currentWindow: true }, async function (tabs) {
+        var tab = tabs[0];
+        let response = (await SendMessage(DATA_KEY_GET_TOPIC_NEXT_TARGET_QUESTION, {topic: topic}));
+        if(response.success) {
+            chrome.tabs.update(tab.id, { url: response.result });
+            window.close();
+        }
     });
 }
 /////////////////////////////////////////////////////////////////////////////////

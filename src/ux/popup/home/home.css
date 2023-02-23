@@ -44,3 +44,23 @@ button {
     border: unset;
     margin-left:8px;
 }
+
+/** loading */
+.loading-container {
+    height: 300px;
+    text-align: center;
+}
+
+.loading-ani {
+    animation: loading_animate 4s infinite linear;
+    height: 215px;
+}
+
+.loading-text {
+    text-align: center;
+    padding-bottom: 25px;
+}
+
+@keyframes loading_animate {
+    from {transform: rotate(0deg)} to {transform: rotate(359deg);}
+}
