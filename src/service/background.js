@@ -1,16 +1,44 @@
+importScripts("/shared/action-keys.js");
 importScripts("/shared/data-keys.js");
 importScripts("/shared/functions.js");
+importScripts("/service/shared/functions.js");
 
 delog("background.js Loading " + new Date());
 
 // In memory cache (rather than using storage)
 const cache = {};
 
+  
 /**
  * Static and generic successResponse
  */
 const successResponse = {success:true};
 
+
+/**
+ * Function to send a message to a specific instance of leetcode site scripts. 
+ */
+function queryDataFromTab(tabId, key, data, queryFunc) {
+  delog("queryDataFromTab");
+  delog(tabId);
+  delog(data);
+
+  let message = {
+    action: DATA_ACTION_QUERY,
+    key: key,
+    query: queryFunc(data)
+  };
+  delog(message);
+
+  chrome.tabs.sendMessage(
+    tabId, 
+    message,
+    (response) => {
+      delog(`Response from tabId ${tabId} for key ${key}`);
+      delog(response);
+    }
+  );
+}
 
 /**
  * Controller APIs that either can be called from on site scripts or UX scripts
@@ -67,7 +95,6 @@ APIS[DATA_KEY_GET_TOPIC_NEXT_TARGET_QUESTION] = (msg, _sender, sendResponse) => 
   });
 }
 
-
 /**
  * API infrastructure that listens for messages from content-scripts and UX scripts
  */
@@ -85,43 +112,84 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 });
 
-/**
- * Function to send a message to a specific instance of leetcode site scripts. 
- */
-function sendTabMessage(tabId, key, data) {
-  let message = {
-    key: key,
-    data: data
-  };
 
-  delog(`Send message(tabId:${tabId})`);
-  delog(message);
-  chrome.tabs.sendMessage(
-    tabId, 
-    message,
-    (response) => {
-      delog(`Response for ${key}`);
-      delog(response);
-    }
-  );
-}
 
 /**
  * Sends message to UX that it needs to rerender
  */
 function sendUxReRenderMessage() {
+  delog(sendUxReRenderMessage.name);
   chrome.runtime.sendMessage({key: DATA_KEY_RERENDER}, function (data) {
     delog(`Messaged ${DATA_KEY_RERENDER} acknowledged:`);
     delog(data);
   });
 }
 
+
+/**
+ * Query funcs. These functions given some data will produce the necessary query body.
+ */
+
+const queryFuncs = [];
+
+function registerQueryFunc(key, func) {
+  delog(registerQueryFunc.name);
+  delog(key);
+
+  if(key in queryFuncs) {
+    throw new Error(`Already registered: ${key}`);
+  }
+
+  queryFuncs[key] = func;
+}
+
+function getQueryFunc(key) {
+  delog(getQueryFunc.name);
+  return queryFuncs[key];
+}
+
+//Signed-In User Profile Data
+registerQueryFunc(
+  DATA_KEY_USER_STATUS,
+  () => JSON.stringify({
+    operationName: "globalData",
+    query: "query globalData {userStatus {isSignedIn username realName avatar}}",
+    variables: {}
+  })
+);
+
+// Submission Times
+registerQueryFunc(
+  DATA_KEY_SUBMISSIONS,
+  (data) => JSON.stringify({
+    operationName: "Submissions",
+    query: `query Submissions($offset: Int!, $limit: Int!, $lastKey: String, $questionSlug: String!) {
+        submissionList(offset: $offset, limit: $limit, lastKey: $lastKey, questionSlug: $questionSlug) {
+          lastKey
+          hasNext
+          submissions {
+            titleSlug
+            statusDisplay
+            timestamp
+          }
+        }
+      }`,
+    variables: { offset: 0, limit: 200, lastKey: null, questionSlug: data.titleSlug }
+  })
+);
+
+// All Questions Data
+registerQueryFunc(
+  DATA_KEY_ALL_PROBLEMS,
+  () => "{\"query\":\"query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {problemsetQuestionList: questionList(categorySlug: $categorySlug limit: $limit skip: $skip filters: $filters) {total: totalNum questions: data {acRate difficulty frontendQuestionId: questionFrontendId isFavor paidOnly: isPaidOnly status title titleSlug topicTags {name id slug} hasSolution hasVideoSolution}}}\",\"variables\":{\"categorySlug\":\"\",\"skip\":0,\"limit\":3000,\"filters\":{}}}",
+);
+
 /**
  * Queries for data by sending messages to the content scripts which call leetcode directly using user's credentials
  */
 function queryForNewDataIfNeeded(data_key, tabId, secondsFresh, data) {
   if(!(data_key in cache) || !cache[data_key].lastUpdated || cache[data_key].lastUpdated + 1000 * secondsFresh < Date.now()) {
-    sendTabMessage(tabId, data_key, data);
+    queryDataFromTab(tabId, data_key, data, getQueryFunc(data_key));
   }
 }
 

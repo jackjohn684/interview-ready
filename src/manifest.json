@@ -10,6 +10,7 @@
       {
         "matches": ["https://leetcode.com/*"],
         "js": [
+          "/shared/action-keys.js",
           "/shared/data-keys.js",
           "/shared/functions.js",
           "/onsite/content-script.js"

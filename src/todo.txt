@@ -1,12 +1,17 @@
+1. Commit Refactor without firestore
+2. Upload all data to firestore
+2a. Submissions
+2b. Views
+
+
+
+
+
 Query submissions for every problem that we have a start time for and save that data. 
 
 Be smarter about not querying for data we already have (page seems to reload a lot on leetcode)
 
-Update the "ready" algorithm to be midterm replacement ready
-
 Only grab all the medium problems static metadata daily.
-
-
 
 
 Future product ideas:
