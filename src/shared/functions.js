@@ -2,7 +2,7 @@ const isDebug = !('update_url' in chrome.runtime.getManifest());
 
 function delog(message) {
     if(isDebug) {
-        console.log(`${(new Error).fileName}: message`);
+        console.log(message);
     }
 }
 

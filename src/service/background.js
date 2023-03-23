@@ -1,7 +1,6 @@
 importScripts("/shared/action-keys.js");
 importScripts("/shared/data-keys.js");
 importScripts("/shared/functions.js");
-importScripts("/service/shared/functions.js");
 
 delog("background.js Loading " + new Date());
 
@@ -51,7 +50,7 @@ const APIS={};
 APIS[DATA_KEY_PAGE_LOADED] = (msg, sender, sendResponse) => {
   queryForNewDataIfNeeded(DATA_KEY_USER_STATUS, sender.tab.id, 1);
   queryForNewDataIfNeeded(DATA_KEY_ALL_PROBLEMS, sender.tab.id, 1);
-  queryForNewDataIfNeeded(DATA_KEY_SUBMISSIONS, sender.tab.id, 1);
+  //queryForNewDataIfNeeded(DATA_KEY_SUBMISSIONS, sender.tab.id, 1);
   sendResponse(successResponse);
 }
 
@@ -71,6 +70,7 @@ function genericUpdateCache(msg, _sender, sendResponse) {
  * APIs called by UX to retrieve data needed to render
  */
 APIS[DATA_KEY_GET_USER_IS_SIGNED_IN] = (_msg, _sender, sendResponse) => {
+  delog(DATA_KEY_GET_USER_IS_SIGNED_IN);
   sendResponse(
     {
       success: true, 
@@ -81,6 +81,7 @@ APIS[DATA_KEY_GET_USER_IS_SIGNED_IN] = (_msg, _sender, sendResponse) => {
 )};
 
 APIS[DATA_KEY_GET_TOPIC_READINESS] = (_msg, _sender, sendResponse) => {
+  delog(DATA_KEY_GET_TOPIC_READINESS);
   sendResponse(
     {
       success: true, 
@@ -89,10 +90,14 @@ APIS[DATA_KEY_GET_TOPIC_READINESS] = (_msg, _sender, sendResponse) => {
 )};
 
 APIS[DATA_KEY_GET_TOPIC_NEXT_TARGET_QUESTION] = (msg, _sender, sendResponse) => {
-  sendResponse({
+  delog(DATA_KEY_GET_TOPIC_NEXT_TARGET_QUESTION);
+  let response = {
     success:true, 
     result: `https://leetcode.com/problems/${GetNextPracticeProblem(msg.data.topic)}/`
-  });
+  };
+  delog("Response: ");
+  delog(response);
+  sendResponse(response);
 }
 
 /**
@@ -100,7 +105,7 @@ APIS[DATA_KEY_GET_TOPIC_NEXT_TARGET_QUESTION] = (msg, _sender, sendResponse) => 
  */
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  delog("Recieved message!");
+  delog("Controller recieved message!");
   delog(msg);
   delog(sender);
   if(msg.key in APIS) {
@@ -120,7 +125,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 function sendUxReRenderMessage() {
   delog(sendUxReRenderMessage.name);
   chrome.runtime.sendMessage({key: DATA_KEY_RERENDER}, function (data) {
-    delog(`Messaged ${DATA_KEY_RERENDER} acknowledged:`);
+    delog(`Messaged ${DATA_KEY_RERENDER} acknowledged. Data:`);
     delog(data);
   });
 }
@@ -188,9 +193,9 @@ registerQueryFunc(
  * Queries for data by sending messages to the content scripts which call leetcode directly using user's credentials
  */
 function queryForNewDataIfNeeded(data_key, tabId, secondsFresh, data) {
-  if(!(data_key in cache) || !cache[data_key].lastUpdated || cache[data_key].lastUpdated + 1000 * secondsFresh < Date.now()) {
+  //if(!(data_key in cache) || !cache[data_key].lastUpdated || cache[data_key].lastUpdated + 1000 * secondsFresh < Date.now()) {
     queryDataFromTab(tabId, data_key, data, getQueryFunc(data_key));
-  }
+  //}
 }
 
 /**
@@ -268,7 +273,7 @@ function buildLegacyReadinessMode(allProblems, targetTopics) {
   // Build Topic Points
   let topicPoints = {};
   allProblems.data.problemsetQuestionList.questions.forEach((question) => {
-    if(question.status = "ac") {
+    if(question.status == "ac") {
       let points = .1;
       if(question.difficulty == 'Easy') {
         points = .25;
@@ -354,7 +359,7 @@ function GetNextPracticeProblem(topic) {
   });
 
   const randomElementInArray = (arr) => {
-    arr[Math.floor(Math.random() * arr.length)];
+    return arr[Math.floor(Math.random() * arr.length)];
   }
 
   if(unsolvedProblemsMediumAtTarget.length > 0) {
