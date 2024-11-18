@@ -237,7 +237,8 @@ function processUpdates(key, _prevValue, _value) {
  * Legacy mode readiness constants
  */
 const READINESS_MODE_LEGACY = "legacy";
-const READINESS_TARGET_AC_RATE = 55.0;
+const READINESS_TARGET_UPPER_AC_RATE = 60.0;
+const READINESS_TARGET_LOWER_AC_RATE = 40.0;
 
 
 /**
@@ -251,7 +252,7 @@ function createAndCacheReadinessData() {
 
   const readinessMode = READINESS_MODE_LEGACY;
   const targetTopics = ['hash-table','string','linked-list','queue','dynamic-programming','array','sorting','heap-priority-queue',
-        'depth-first-search','breadth-first-search'];
+        'depth-first-search','breadth-first-search', 'binary-search'];
   
   let readinessData = {};
 
@@ -276,13 +277,18 @@ function buildLegacyReadinessMode(allProblems, targetTopics) {
     if(question.status == "ac") {
       let points = .1;
       if(question.difficulty == 'Easy') {
-        points = .25;
-      } else if(question.difficulty == 'Medium' && question.acRate < READINESS_TARGET_AC_RATE) {
+        points = .35;
+      } else if(question.difficulty == 'Medium' && 
+        question.acRate >= READINESS_TARGET_UPPER_AC_RATE) {
+        points = .75;
+      } else if(question.difficulty == 'Medium' && 
+          question.acRate < READINESS_TARGET_UPPER_AC_RATE && 
+          question.acRate > READINESS_TARGET_UPPER_AC_RATE) {
         points = 1;
       } else if(question.difficulty == 'Medium') {
-        points = .5;
+        points = 1.5;
       } else if (question.difficulty == 'Hard') {
-        points = 1;
+        points = 2;
       }
   
       for(var j=0; j<question.topicTags.length; j++) {
@@ -332,8 +338,9 @@ function buildLegacyReadinessMode(allProblems, targetTopics) {
 function GetNextPracticeProblem(topic) {
   delog(`GetNextPracticeProblem(${topic})`);
   const allProblems = cache[DATA_KEY_ALL_PROBLEMS];
+  const unsolvedProblemsMediumMoreDifficultThanTarget = []
   const unsolvedProblemsMediumAtTarget = [];
-  const unsolvedProblemsMediumNotAtTarget = [];
+  const unsolvedProblemsMediumEasierThanTarget = [];
   const unsolvedProblemsHard = [];
   const unsolvedProblemsEasy = [];
 
@@ -345,10 +352,14 @@ function GetNextPracticeProblem(topic) {
       if(question.status != "ac") {
         if(question.difficulty == 'Easy') {
           unsolvedProblemsEasy.push(question.titleSlug);
-        } else if(question.difficulty == 'Medium' && question.acRate < READINESS_TARGET_AC_RATE) {
+        } else if(question.difficulty == 'Medium' && question.acRate >= READINESS_TARGET_UPPER_AC_RATE) {
+          unsolvedProblemsMediumEasierThanTarget.push(question.titleSlug);
+        } else if(question.difficulty == 'Medium' 
+            && question.acRate < READINESS_TARGET_UPPER_AC_RATE
+            && question.acRate > READINESS_TARGET_LOWER_AC_RATE) {
           unsolvedProblemsMediumAtTarget.push(question.titleSlug);
         } else if(question.difficulty == 'Medium') {
-          unsolvedProblemsMediumNotAtTarget.push(question.titleSlug)
+          unsolvedProblemsMediumMoreDifficultThanTarget.push(question.titleSlug)
         } else if (question.difficulty == 'Hard') {
           unsolvedProblemsHard.push(question.titleSlug)
         }
@@ -361,11 +372,22 @@ function GetNextPracticeProblem(topic) {
   const randomElementInArray = (arr) => {
     return arr[Math.floor(Math.random() * arr.length)];
   }
+  
+  const numberOfEasyProblemsFirst = Math.min(8, unsolvedProblemsEasy.length);
+  const numberOfBeforeTargetFirst = Math.min(10, unsolvedProblemsEasy.length + unsolvedProblemsMediumEasierThanTarget.length);
+
+  if (numberOfEasyProblemsFirst > solvedProblems.length) {
+    return randomElementInArray(unsolvedProblemsEasy);
+  } else if (numberOfBeforeTargetFirst > solvedProblems.length) {
+    return randomElementInArray(unsolvedProblemsMediumEasierThanTarget);
+  }
 
   if(unsolvedProblemsMediumAtTarget.length > 0) {
     return randomElementInArray(unsolvedProblemsMediumAtTarget);
-  } else if(unsolvedProblemsMediumNotAtTarget.length > 0) {
-    return randomElementInArray(unsolvedProblemsMediumNotAtTarget);
+  } else if(unsolvedProblemsMediumEasierThanTarget.length > 0) {
+    return randomElementInArray(unsolvedProblemsMediumEasierThanTarget);
+  } else if(unsolvedProblemsMediumMoreDifficultThanTarget.length > 0) {
+    return randomElementInArray(unsolvedProblemsMediumMoreDifficultThanTarget);
   } else if(unsolvedProblemsHard.length > 0) {
     return randomElementInArray(unsolvedProblemsHard);
   } else if (unsolvedProblemsEasy.length > 0) {
