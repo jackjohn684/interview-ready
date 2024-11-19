@@ -158,7 +158,7 @@ registerQueryFunc(
   DATA_KEY_USER_STATUS,
   () => JSON.stringify({
     operationName: "globalData",
-    query: "query globalData {userStatus {isSignedIn username realName avatar}}",
+    query: "query globalData {userStatus {isSignedIn isPremium username realName avatar}}",
     variables: {}
   })
 );
@@ -338,6 +338,7 @@ function buildLegacyReadinessMode(allProblems, targetTopics) {
 function GetNextPracticeProblem(topic) {
   delog(`GetNextPracticeProblem(${topic})`);
   const allProblems = cache[DATA_KEY_ALL_PROBLEMS];
+  const userHasPremium = cache[DATA_KEY_USER_STATUS].data.userStatus.isPremium;
   const unsolvedProblemsMediumMoreDifficultThanTarget = []
   const unsolvedProblemsMediumAtTarget = [];
   const unsolvedProblemsMediumEasierThanTarget = [];
@@ -348,7 +349,7 @@ function GetNextPracticeProblem(topic) {
 
   allProblems.data.problemsetQuestionList.questions.forEach((question) => {
     let relatedToTargetTopic = question.topicTags.find(t => t.slug == topic);
-    if(relatedToTargetTopic) {
+    if(relatedToTargetTopic && (!question.paidOnly || userHasPremium)) {
       if(question.status != "ac") {
         if(question.difficulty == 'Easy') {
           unsolvedProblemsEasy.push(question.titleSlug);
