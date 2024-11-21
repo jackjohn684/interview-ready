@@ -4,8 +4,12 @@ importScripts("/shared/functions.js");
 
 delog("background.js Loading " + new Date());
 
-// In memory cache (rather than using storage)
-const cache = {};
+// In memory cache (rather than using storage) *** Using storage to deal with new security issues on sendMessage
+let cache = {};
+
+chrome.storage.local.get(["cache"]).then((result) => {
+  cache = result.cache;
+});
 
   
 /**
@@ -199,18 +203,6 @@ function queryForNewDataIfNeeded(data_key, tabId, secondsFresh, data) {
 }
 
 /**
- * Helper function for updating submission cache.
- */
-function updateSumissionsCache(key, value) {
-  if(!cache[key]) {
-    cache[key] = {};
-  }
-
-  let slug = value.data.questionSubmissionList.submissions[0].titleSlug;
-  cache[key][slug] = value;
-}
-
-/**
  * Updates the in memory cache
  */
 function updateCache(key, value) {
@@ -220,6 +212,11 @@ function updateCache(key, value) {
   cache[key] = value;
   cache[key].lastUpdated = Date.now();
   processUpdates(key, prevValue, value);
+
+  // USING CACHE - temporary solution until re-do message framework with limitations in mind TODO
+  chrome.storage.local.set({cache: cache}).then((result) => {
+    console.log("Updated cache");
+  });
 }
 
 /**
