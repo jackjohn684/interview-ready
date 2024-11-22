@@ -56,7 +56,7 @@ jobs:
           -H "Authorization: Bearer $TOKEN" \
           -H "x-goog-api-version: 2" \
           -X PUT -T $ZIP_FILE \
-          "https://www.googleapis.com/upload/chromewebstore/v1.1/items/${{ secrets.CHROME_EXTENSION_ID }})"
+          "https://www.googleapis.com/upload/chromewebstore/v1.1/items/${{ secrets.CHROME_EXTENSION_ID }}")
         echo "Upload successful.: $response"
 
     - name: Publish Extension
@@ -68,5 +68,5 @@ jobs:
           -H "x-goog-api-version: 2" \
           -H "Content-Length: 0" \
           -X POST \
-          "https://www.googleapis.com/chromewebstore/v1.1/items/${{ secrets.CHROME_EXTENSION_ID }}/publish)"
+          "https://www.googleapis.com/chromewebstore/v1.1/items/${{ secrets.CHROME_EXTENSION_ID }}/publish")
         echo "Publish successful: $response"
