@@ -1,6 +1,7 @@
 name: Zip and Upload to Chrome Web Store
 
 on:
+  workflow_dispatch:  # Allows manual triggering
   push:
     paths:
       - src/manifest.json
