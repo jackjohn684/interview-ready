@@ -37,7 +37,7 @@ jobs:
           exit 1
         fi
 
-        access_token=$(echo "$response" | jk parse -a '.access_token')
+        access_token=$(echo "$response" | jq parse -a '.access_token')
 
         if [ -z "$access_token" ]; then
           echo "Failed to extract access_token from the response"
