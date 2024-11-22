@@ -31,7 +31,21 @@ jobs:
           -d "grant_type=refresh_token" \
           -d "refresh_token=${{ secrets.REFRESH_TOKEN }}" \
           -d "client_id=${{ secrets.CLIENT_ID }}")
-        echo "token=$(echo $response | grep -oP '(?<=\"access_token\":\")[^\"]*')" >> $GITHUB_ENV
+        
+        if [ -z "$response" ]; then
+          echo "Failed to get a response from the OAuth server"
+          exit 1
+        fi
+
+        access_token=$(echo "$response" | jk parse -a '.access_token')
+
+        if [ -z "$access_token" ]; then
+          echo "Failed to extract access_token from the response"
+          echo "Response: $response"
+          exit 1
+        fi
+        
+        echo "token=$access_token" >> $GITHUB_ENV
 
     - name: Upload Zip to Chrome Web Store
       env:
