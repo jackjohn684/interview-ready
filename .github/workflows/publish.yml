@@ -2,8 +2,8 @@ name: Zip and Upload to Chrome Web Store
 
 on:
   push:
-    branches:
-      - main
+    paths:
+      - src/manifest.json
 
 jobs:
   upload-zip:
