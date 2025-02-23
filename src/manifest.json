@@ -1,25 +1,18 @@
 {
     "name": "Interview Ready",
     "description": "This extension is designed to help you become interview ready!",
-    "version": "0.89",
+    "version": "0.94",
     "manifest_version": 3,
-    "background": {
-      "service_worker": "/service/background.js"
-    },
     "content_scripts": [
       {
         "matches": ["https://leetcode.com/*"],
         "js": [
-          "/shared/action-keys.js",
-          "/shared/data-keys.js",
-          "/shared/functions.js",
           "/onsite/content-script.js"
         ]
       }
     ],
     "permissions": [
-        "storage", 
-        "webRequest"
+        "storage"
     ],
     "host_permissions": [
       "https://leetcode.com/*"

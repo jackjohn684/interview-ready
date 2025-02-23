@@ -2,8 +2,10 @@
 <html>
   <head>
       <!-- Page static scripts -->
-      <script src="/shared/functions.js"></script>
-      <script src="/shared/data-keys.js"></script>
+      <script type="module" src="../../../readiness-logic/classic.js"></script>
+      <script type="module" src="../../../shared/data-storage.js"></script>
+      <script type="module" src="../../../shared/logging.js"></script>
+      <script type="module" src="home.js"></script>
     <link rel="stylesheet" href="home.css">
   </head>
   <body>
@@ -18,10 +20,21 @@
         <div class='loading-text'>Loading</div>
         <img class='loading-ani' src='/ux/images/loading.png'>
       </div>
-      <div id="currentReadiness"></div>
+      <div id="legend" hidden="true">
+        <p><span class="practice-suggested">&#8599;</span> - This is the next suggested problem!</p>
+        <p><span class="practice-easy">&#8599;</span> - Random easy!</p>
+        <p><span class="practice-medium">&#8599;</span> - Random medium on a graduated scale by acceptance rate!</p>
+        <p><span class="practice-hard">&#8599;</span> - Random hard!</p>
+        <p><span class="practice-random">&#8599;</span> - Random problem of any difficulty!</p>
+      </div>
+      <div id="currentReadiness">
+      </div>
+      <div class="github-link">
+        <a href="https://github.com/interviewreadyextension/interview-ready" target="_blank">https://github.com/interviewreadyextension/interview-ready</a>
+      </div>
     </div>
 
     <!-- DOM Affecting Scripts -->
-    <script src="home.js"></script>
+    
   </body>
 </html>

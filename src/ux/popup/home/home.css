@@ -11,11 +11,50 @@ button {
 
 }
 
+#refresh-button {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background-color: unset;
+    border: 0px;
+    color: green;
+}
+
+/** special ids */
+
+#legend {
+    position: absolute;
+    top: 12px;
+    z-index: 2;
+    background-color: #fafafa;
+}
+
+#legend-button {
+    position: absolute;
+    top: 2px;
+    right: 24px;
+    background-color: unset;
+    border: 0px;
+    color: turquoise;
+}
 
 /** classes */
 
+.github-link {
+    font-size:10px;
+    font-style: italic;
+    text-align: center;
+    padding-top: 8px;
+}
+.github-link a {
+    color:darkgrey;
+    text-decoration: none;
+}
+
+
+
 .homecontainer {
-    width: 340px;
+    width: 420px;
     font-family: 'Courier New', Courier, monospace;
     font-size: 18px;
 }
@@ -36,13 +75,40 @@ button {
     color:red;
 }
 
-.topicStatus button.practice {
-    background-image: url('/ux/images/clickAndGoIcon.png');
+button.practice {
+    /* background-image: url('/ux/images/clickAndGoIcon.png'); */
     background-size: 14px 14px;
-    width: 14px;
+    /*width: 14px;
     height: 14px;
-    border: unset;
-    margin-left:8px;
+    border: unset;*/
+    /* margin-left:8px; */
+    padding: 0px;
+    border: 0px;
+    background-color: unset;
+}
+
+.practice-easy {
+    color:green;
+}
+
+.practice-medium {
+    color:goldenrod;
+}
+
+.practice-hard {
+    color:red;
+}
+
+.practice-random {
+    color:pink;
+}
+
+.practice-suggested {
+    color:turquoise;
+}
+
+.practice-green {
+    color:green;
 }
 
 /** loading */
