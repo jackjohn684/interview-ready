@@ -1,0 +1,1 @@
+Compress-Archive -Force -Path src\* -DestinationPath latest.zip
