@@ -1,5 +1,7 @@
 import {delog, traceMethod} from "../../../shared/logging.js"
 import {getNextPracticeProblem, getReadinessData} from "../../../readiness-logic/classic.js"
+import {getPracticeProblem} from "../../../readiness-logic/practice.js"
+import { randomElementInArray } from "../../../readiness-logic/random.js";
 
 delog(`Loaded home.js: ${new Date()}`);
 
@@ -50,9 +52,6 @@ function showHideById(id, shouldHide) {
 //setInterval(render, 1000);
 render();
 
-const targetTopics = ['hash-table','string','linked-list','queue','dynamic-programming','array','sorting','heap-priority-queue',
-    'depth-first-search','breadth-first-search', 'binary-search'];
-
 async function render() {
 
     delog("################");
@@ -71,9 +70,12 @@ async function render() {
     }
 
     let allProblemsData = (await chrome.storage.local.get(["problemsKey"])).problemsKey;
-    let topicData = getReadinessData(allProblemsData, targetTopics);
+    let topicData = getReadinessData(allProblemsData);
     var readiness = document.getElementById("currentReadiness");
-    readiness.innerHTML = '<button id=\'legend-button\'>?</button><button id=\'refresh-button\'>↺</button>';
+
+    readiness.innerHTML = '';
+    readiness.innerHTML = '<button class=\'clickable bigpractice\' practice-type=\'suggested\'>Next Suggested Problem</button>';
+    readiness.innerHTML += '<button id=\'legend-button\' class=\'clickable\'>?</button><button id=\'refresh-button\' class=\'clickable\'>↺</button>';
 
 
     if(!allProblemsData) {
@@ -90,26 +92,41 @@ async function render() {
 
     var readinessHtmlFunc = (styleClass, text, topic) => {
         return `<div class="topicStatus">
-        <button class="practice practice-suggested" difficulty='suggested' data-topic='${topic}'>🡕</button>
-        <button class="practice practice-easy" difficulty='easy' data-topic='${topic}'>🡕</button>
-        <button class="practice practice-medium" difficulty='medium' data-topic='${topic}'>🡕</button>
-        <button class="practice practice-hard" difficulty='hard' data-topic='${topic}'>🡕</button>
-        <button class="practice practice-random" difficulty='random' data-topic='${topic}'>🡕</button>
-        <font difficulty='suggested' data-topic='${topic}' class='practice ${styleClass}'>${topic} - ${text}</font>
-        </div>
-        `;
+        <button class="clickable practice practice-suggested" difficulty='suggested' data-topic='${topic}'>🡕</button>
+        <button class="clickable practice practice-easy" difficulty='easy' data-topic='${topic}'>🡕</button>
+        <button class="clickable practice practice-medium" difficulty='medium' data-topic='${topic}'>🡕</button>
+        <button class="clickable practice practice-hard" difficulty='hard' data-topic='${topic}'>🡕</button>
+        <button class="clickable practice practice-random" difficulty='random' data-topic='${topic}'>🡕</button>
+        <button difficulty='suggested' data-topic='${topic}' class='clickable practice ${styleClass}'>${topic} - ${text}</button>
+        </div>`;
     };
 
     var addReadiness = (styleClass, text, topic) => readiness.innerHTML += readinessHtmlFunc(styleClass, text, topic);
-
-
+    var randomTone = () => randomElementInArray(["&#127995;","&#127996;","&#127997;","&#127998;","&#127999;"]);
+    var sumOfReadiness = 0;
     sortedTopicProficiency.forEach(element => {
         var topic = element[0];
         var readinessPercent = element[1][1];
+        sumOfReadiness += readinessPercent;
         var designation = element[1][0];
         var readinessScoreFormattedAsPercent = '%' + readinessPercent.toFixed();
-        addReadiness(designation, designation == "ready" ? "Ready": readinessScoreFormattedAsPercent, topic);
+        if (designation == "ready") {
+            readinessScoreFormattedAsPercent += " &#128077;" + randomTone(); // 👍
+        } else {
+            readinessScoreFormattedAsPercent += " &#x1F448;" + randomTone(); // 👈
+        }
+        //addReadiness(designation, designation == "ready" ? "Ready": readinessScoreFormattedAsPercent, topic);
+        addReadiness(designation, readinessScoreFormattedAsPercent, topic);
     });
+
+    
+    if(sumOfReadiness) {
+        readiness.innerHTML += '<button class=\'clickable bigpractice\' practice-type=\'review\'>Review Random Completed</button>';
+    } 
+
+    readiness.innerHTML += '<button class=\'clickable bigpractice\' practice-type=\'random\'>Solve Random Problem</button>';
+
+    //////// DONE CHANGING DOM -- ADD handlers
 
     var items = document.getElementsByClassName("practice");
     for (var i = 0; i < items.length; i++) {
@@ -118,6 +135,15 @@ async function render() {
             onTopicClick(button.getAttribute("data-topic"), button.getAttribute("difficulty"));
         });
     }
+
+    var items = document.getElementsByClassName("bigpractice");
+    for (var i = 0; i < items.length; i++) {
+        let button = items[i];
+        button.addEventListener("click", function () {
+            onBigPracticeButtonClick(button.getAttribute("practice-type"));
+        });
+    }
+
 
     document.getElementById('refresh-button').addEventListener("click", () => {
         chrome.storage.local.set({"refresh_problems": Date.now()});
@@ -152,6 +178,17 @@ function onTopicClick(topic, target) {
     chrome.tabs.query({ active: true, currentWindow: true }, async function (tabs) {
         var tab = tabs[0];
         var nextProblemSlug = await getNextPracticeProblem(topic, target);
+        var nextProblemUrl = `https://leetcode.com/problems/${nextProblemSlug}`
+        chrome.tabs.update(tab.id, { url: nextProblemUrl });
+        window.close();
+    });
+}
+
+function onBigPracticeButtonClick(practiceType) {
+    delog(practiceType);
+    chrome.tabs.query({ active: true, currentWindow: true }, async function (tabs) {
+        var tab = tabs[0];
+        var nextProblemSlug = await getPracticeProblem(practiceType);
         var nextProblemUrl = `https://leetcode.com/problems/${nextProblemSlug}`
         chrome.tabs.update(tab.id, { url: nextProblemUrl });
         window.close();

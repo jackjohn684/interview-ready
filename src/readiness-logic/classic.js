@@ -1,4 +1,6 @@
 import { delog, traceMethod } from "../shared/logging.js"
+import { targetTopics } from "./target-topics.js";
+import { randomElementInArray } from "./random.js";
 
 /**
  * Classic mode readiness constants
@@ -11,7 +13,7 @@ const READINESS_TARGET_LOWER_AC_RATE = 40.0;
 /**
  * Classic readiness calculator
  */
-export const getReadinessData = traceMethod(function getReadinessData(allProblems, targetTopics) {
+export const getReadinessData = traceMethod(function getReadinessData(allProblems) {
   delog(allProblems);
   // Build Topic Points
   const targetPointsPerTopic = 20.0;
@@ -118,14 +120,10 @@ export async function getNextPracticeProblem(topic, target) {
     }
   });
 
-  const randomElementInArray = (arr) => {
-    return arr[Math.floor(Math.random() * arr.length)];
-  }
-
   const preferredElementInArray = (arr) => {
     const filteredArr = arr.filter(item => recommendedSet.has(item));
     const targetArray = filteredArr.length > 2 ? filteredArr : arr;
-    return targetArray[Math.floor(Math.random() * targetArray.length)];
+    return randomElementInArray(targetArray);
   }
 
   if (target == "easy") {
@@ -171,7 +169,7 @@ export async function getNextPracticeProblem(topic, target) {
 };
 
 
-const recommendedList = [
+export const recommendedList = [
   "find-first-palindromic-string-in-the-array",
   "valid-palindrome",
   "reverse-linked-list",

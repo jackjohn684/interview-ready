@@ -54,7 +54,7 @@ button {
 
 
 .homecontainer {
-    width: 420px;
+    width: 480px;
     font-family: 'Courier New', Courier, monospace;
     font-size: 18px;
 }
@@ -75,6 +75,33 @@ button {
     color:red;
 }
 
+.clickable {
+    cursor: pointer;
+    border-radius: 5px;
+    padding: 0px 2px 0px 2px;
+}
+
+.clickable:hover {
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.8);
+    /* transition: box-shadow .24s ease-out; */
+}
+
+.clickable:active {
+    transform: scale(.96) /* shrink by 10% while clicking */
+}
+
+
+.bigpractice {
+    width: 88%;
+    background-color: #ecffff;
+    color: #002b5b;
+    
+    border: unset;
+    border-radius: 25px;
+    margin: 2px;
+    text-transform: lowercase;
+}
+
 .practice {
     cursor: pointer;
 }
@@ -86,7 +113,7 @@ button.practice {
     height: 14px;
     border: unset;*/
     /* margin-left:8px; */
-    padding: 0px;
+    /* padding: 0px; */
     border: 0px;
     background-color: unset;
 }
