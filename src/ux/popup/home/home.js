@@ -95,7 +95,7 @@ async function render() {
         <button class="practice practice-medium" difficulty='medium' data-topic='${topic}'>🡕</button>
         <button class="practice practice-hard" difficulty='hard' data-topic='${topic}'>🡕</button>
         <button class="practice practice-random" difficulty='random' data-topic='${topic}'>🡕</button>
-        <font class='${styleClass}'>${topic} - ${text}</font>
+        <font difficulty='suggested' data-topic='${topic}' class='practice ${styleClass}'>${topic} - ${text}</font>
         </div>
         `;
     };

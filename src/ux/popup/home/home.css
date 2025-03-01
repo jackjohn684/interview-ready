@@ -75,6 +75,10 @@ button {
     color:red;
 }
 
+.practice {
+    cursor: pointer;
+}
+
 button.practice {
     /* background-image: url('/ux/images/clickAndGoIcon.png'); */
     background-size: 14px 14px;
