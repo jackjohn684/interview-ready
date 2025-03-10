@@ -2,12 +2,12 @@
  * This file is not used. Just has sample models. If we move it to typescript then it would inform the types.
  */
 
-const readinessData = {
+export const readinessData = {
     "hash-table": ["ready", "135.25"],
     "Array": ["almost","5.35"]
 }
 
-const sampleSubmissionListsResponse = {
+export const sampleSubmissionListsResponse = {
     "data": {
         "questionSubmissionList": {
             "lastKey": null,
@@ -273,7 +273,7 @@ const sampleSubmissionListsResponse = {
     }
 }
 
-const sampleProblemListResponse = {
+export const sampleProblemListResponse = {
     "data": {
         "problemsetQuestionList": {
             "total": 2459,
@@ -359,6 +359,66 @@ const sampleProblemListResponse = {
                             "id": "VG9waWNUYWdOb2RlOjU1ODIx",
                             "slug": "sliding-window"
                         }
+                    ],
+                    "hasSolution": true,
+                    "hasVideoSolution": true
+                },
+                {
+                    "acRate": 33.7817177023306,
+                    "difficulty": "Medium",
+                    "freqBar": null,
+                    "frontendQuestionId": "3",
+                    "isFavor": false,
+                    "paidOnly": false,
+                    "status": "ac",
+                    "title": "Longest Substring Without Repeating Characters",
+                    "titleSlug": "longest-substring-without-repeating-characters",
+                    "topicTags": [
+                        {
+                            "name": "Hash Table",
+                            "id": "VG9waWNUYWdOb2RlOjY=",
+                            "slug": "dynamic-programming"
+                        },
+                    ],
+                    "hasSolution": true,
+                    "hasVideoSolution": true
+                },
+                {
+                    "acRate": 33.7817177023306,
+                    "difficulty": "Medium",
+                    "freqBar": null,
+                    "frontendQuestionId": "3",
+                    "isFavor": false,
+                    "paidOnly": false,
+                    "status": "ac",
+                    "title": "Longest Substring Without Repeating Characters",
+                    "titleSlug": "longest-substring-without-repeating-characters",
+                    "topicTags": [
+                        {
+                            "name": "Hash Table",
+                            "id": "VG9waWNUYWdOb2RlOjY=",
+                            "slug": "queue"
+                        },
+                    ],
+                    "hasSolution": true,
+                    "hasVideoSolution": true
+                },
+                {
+                    "acRate": 33.7817177023306,
+                    "difficulty": "Medium",
+                    "freqBar": null,
+                    "frontendQuestionId": "3",
+                    "isFavor": false,
+                    "paidOnly": false,
+                    "status": "ac",
+                    "title": "Longest Substring Without Repeating Characters",
+                    "titleSlug": "longest-substring-without-repeating-characters",
+                    "topicTags": [
+                        {
+                            "name": "Hash Table",
+                            "id": "VG9waWNUYWdOb2RlOjY=",
+                            "slug": "sorting"
+                        },
                     ],
                     "hasSolution": true,
                     "hasVideoSolution": true
