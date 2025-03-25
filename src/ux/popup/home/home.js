@@ -111,9 +111,9 @@ async function render() {
         var designation = element[1][0];
         var readinessScoreFormattedAsPercent = '%' + readinessPercent.toFixed();
         if (designation == "ready") {
-            readinessScoreFormattedAsPercent += " &#128077;" + randomTone(); // 👍
+            `Ready (${readinessScoreFormattedAsPercent})`; // += " &#128077;" + randomTone(); // 👍
         } else {
-            readinessScoreFormattedAsPercent += " &#x1F448;" + randomTone(); // 👈
+            //readinessScoreFormattedAsPercent += " &#x1F448;" + randomTone(); // 👈
         }
         //addReadiness(designation, designation == "ready" ? "Ready": readinessScoreFormattedAsPercent, topic);
         addReadiness(designation, readinessScoreFormattedAsPercent, topic);
