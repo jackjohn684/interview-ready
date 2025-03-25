@@ -13,13 +13,24 @@ const READINESS_TARGET_LOWER_AC_RATE = 40.0;
 /**
  * Classic readiness calculator
  */
-export const getReadinessData = traceMethod(function getReadinessData(allProblems) {
+export const getReadinessData = traceMethod(function getReadinessData(allProblems, recentAcceptedSubmissions) {
   delog(allProblems);
+  delog(recentAcceptedSubmissions);
+
+  let recentAccepted = new Set();
+
+  let acList = recentAcceptedSubmissions?.data?.recentAcSubmissionList;
+  if (acList?.length > 0) {
+    for(let item of acList) {
+      recentAccepted.add(item.titleSlug);
+    }
+  }
+
   // Build Topic Points
   const targetPointsPerTopic = 20.0;
   let topicPoints = {};
   allProblems.data.problemsetQuestionList.questions.forEach((question) => {
-    if (question.status == "ac") {
+    if (question.status == "ac" || recentAccepted.has(question.titleSlug)) {
       let points = .1;
       if (question.difficulty == 'Easy') {
         points = .4;

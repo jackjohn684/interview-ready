@@ -69,8 +69,13 @@ async function render() {
         hideColdStart();
     }
 
+    // Signal that we opened the modal and got passed the sign-in
+    delog("setting modal opened!");
+    chrome.storage.local.set({"modal_opened": Date.now()});
+
     let allProblemsData = (await chrome.storage.local.get(["problemsKey"])).problemsKey;
-    let topicData = getReadinessData(allProblemsData);
+    let recentAcceptedSubmissions = (await chrome.storage.local.get(["recentSubmissionsKey"])).recentSubmissionsKey;
+    let topicData = getReadinessData(allProblemsData, recentAcceptedSubmissions);
     var readiness = document.getElementById("currentReadiness");
 
     readiness.innerHTML = '';
@@ -200,7 +205,7 @@ function onBigPracticeButtonClick(practiceType) {
 //////// Listen for updates ///////////////////
 function changeListener(changes, namespace) {
     for (let [key, {oldValue, newValue}] of Object.entries(changes)) {
-      if(key == "problemsKey" && oldValue?.timeStamp != newValue?.timeStamp) {
+      if((key == "problemsKey" || key == "recentSubmissionsKey") && oldValue?.timeStamp != newValue?.timeStamp) {
         delog(oldValue);
         delog(newValue);
         render();

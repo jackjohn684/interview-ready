@@ -43,6 +43,7 @@ const setStoragePromise = (key, value) => {
 
 const userDataKey = "userDataKey";
 const problemsKey = "problemsKey";
+const recentSubmissionsKey = "recentSubmissionsKey";
 
 /////////////////////////// END COPIES ///////////////////////////
 
@@ -62,6 +63,26 @@ async function queryData(queryBody) {
     });
   delog("querying");
   return await response.json();
+}
+
+async function updateRecentAcceptedSubmissions() {
+  const result = await queryData(JSON.stringify({"query":"\n    query recentAcSubmissions($username: String!, $limit: Int!) {\n  recentAcSubmissionList(username: $username, limit: $limit) {\n    id\n    title\n    titleSlug\n    timestamp\n  }\n}\n    ","variables":{"username":"michael187","limit":15},"operationName":"recentAcSubmissions"}));
+  let stringValue = JSON.stringify(result);
+  const oldValue = (await chrome.storage.local.get([recentSubmissionsKey])).recentSubmissionsKey;
+  delog("Comparing string values");
+  delog(stringValue);
+  delog(oldValue?.stringValue);
+  if (oldValue?.stringValue != stringValue) {
+    result.timeStamp = Date.now();
+    result.stringValue = stringValue;
+    chrome.storage.local.set({recentSubmissionsKey: result});
+    delog("Setting...." + recentSubmissionsKey);
+    delog(result);
+    delog(".....");
+  } 
+  else {
+    delog("nothing has changed, not updating...")
+  }
 }
 
 
@@ -100,10 +121,17 @@ updateUserStatus();
 
 function changeListener(changes, namespace) {
   for (let [key, {oldValue, newValue}] of Object.entries(changes)) {
+    console.log(`CHANGE ${key}`);
+    delog(`CHANGE ${key}`);
     if(key == "refresh_problems" && oldValue != newValue) {
       delog(oldValue);
       delog(newValue);
       updateAllProblems();
+    }
+    else if(key == "modal_opened" && oldValue != newValue) {
+      delog(oldValue);
+      delog(newValue);
+      updateRecentAcceptedSubmissions();
     }
   }
 }

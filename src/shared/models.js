@@ -2,6 +2,25 @@
  * This file is not used. Just has sample models. If we move it to typescript then it would inform the types.
  */
 
+export const recentSubmissionsData = {
+    "data": {
+        "recentAcSubmissionList": [
+            {
+                "id": "1586053946",
+                "title": "Count Primes",
+                "titleSlug": "count-primes",
+                "timestamp": "1742930422"
+            },
+            {
+                "id": "1586032942",
+                "title": "How Many Numbers Are Smaller Than the Current Number",
+                "titleSlug": "how-many-numbers-are-smaller-than-the-current-number",
+                "timestamp": "1742929191"
+            },
+        ]
+    }
+}
+
 export const readinessData = {
     "hash-table": ["ready", "135.25"],
     "Array": ["almost","5.35"]
