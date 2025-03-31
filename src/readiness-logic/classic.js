@@ -1,5 +1,5 @@
 import { delog, traceMethod } from "../shared/logging.js"
-import { targetTopics } from "./target-topics.js";
+import { targetTopicQuestionTarget, targetTopics } from "./target-topics.js";
 import { randomElementInArray } from "./random.js";
 
 /**
@@ -9,14 +9,7 @@ const READINESS_TARGET_UPPER_AC_RATE = 60.0;
 const READINESS_TARGET_LOWER_AC_RATE = 40.0;
 
 
-
-/**
- * Classic readiness calculator
- */
-export const getReadinessData = traceMethod(function getReadinessData(allProblems, recentAcceptedSubmissions) {
-  delog(allProblems);
-  delog(recentAcceptedSubmissions);
-
+const getAcceptedSet = (recentAcceptedSubmissions) => {
   let recentAccepted = new Set();
 
   let acList = recentAcceptedSubmissions?.data?.recentAcSubmissionList;
@@ -26,8 +19,19 @@ export const getReadinessData = traceMethod(function getReadinessData(allProblem
     }
   }
 
+  return recentAccepted;
+}
+
+/**
+ * Classic readiness calculator
+ */
+export const getReadinessData = traceMethod(function getReadinessData(allProblems, recentAcceptedSubmissions) {
+  delog(allProblems);
+  delog(recentAcceptedSubmissions);
+
+  let recentAccepted = getAcceptedSet(recentAcceptedSubmissions);
+
   // Build Topic Points
-  const targetPointsPerTopic = 20.0;
   let topicPoints = {};
   allProblems.data.problemsetQuestionList.questions.forEach((question) => {
     if (question.status == "ac" || recentAccepted.has(question.titleSlug)) {
@@ -70,10 +74,10 @@ export const getReadinessData = traceMethod(function getReadinessData(allProblem
     var topic = element[0];
     if (targetTopics.includes(topic)) {
       var readinessScore = element[1];
-      var normalizedReadinessScore = readinessScore / targetPointsPerTopic;
+      var normalizedReadinessScore = readinessScore / targetTopicQuestionTarget[topic];
       var readinessScoreFormattedAsPercent = 100.0 * normalizedReadinessScore;
 
-      delog(`${normalizedReadinessScore} == ${readinessScore} / ${targetPointsPerTopic}`)
+      delog(`${normalizedReadinessScore} == ${readinessScore} / ${targetTopicQuestionTarget[topic]}`)
 
       if (normalizedReadinessScore >= 1.0) {
         readinessData[topic] = ["ready", readinessScoreFormattedAsPercent];
@@ -95,6 +99,7 @@ export const getReadinessData = traceMethod(function getReadinessData(allProblem
  */
 export async function getNextPracticeProblem(topic, target) {
   const allProblems = (await chrome.storage.local.get(["problemsKey"])).problemsKey;
+  const recentAccepted = getAcceptedSet((await chrome.storage.local.get(["recentSubmissionsKey"])).problemsKey);
   const userHasPremium = (await chrome.storage.local.get(["userDataKey"])).userDataKey.isPremium;
   const unsolvedProblemsMediumMoreDifficultThanTarget = []
   const unsolvedProblemsMediumAtTarget = [];
@@ -106,10 +111,12 @@ export async function getNextPracticeProblem(topic, target) {
   const solvedProblems = []; // If they've solved everything give them a target one to repeat.
   const unsolvedProblems = [];
 
+  
+
   allProblems.data.problemsetQuestionList.questions.forEach((question) => {
     let relatedToTargetTopic = question.topicTags.find(t => t.slug == topic);
     if (relatedToTargetTopic && (!question.paidOnly || userHasPremium)) {
-      if (question.status != "ac") {
+      if (question.status != "ac" && !recentAccepted.has(question.titleSlug)) {
         unsolvedProblems.push(question.titleSlug);
         if (question.difficulty == 'Easy') {
           unsolvedProblemsEasy.push(question.titleSlug);
