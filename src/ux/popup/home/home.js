@@ -116,7 +116,7 @@ async function render() {
         var designation = element[1][0];
         var readinessScoreFormattedAsPercent = '%' + readinessPercent.toFixed();
         if (designation == "ready") {
-            `Ready (${readinessScoreFormattedAsPercent})`; // += " &#128077;" + randomTone(); // 👍
+            readinessScoreFormattedAsPercent = `Ready ${readinessScoreFormattedAsPercent}`; // += " &#128077;" + randomTone(); // 👍
         } else {
             //readinessScoreFormattedAsPercent += " &#x1F448;" + randomTone(); // 👈
         }
