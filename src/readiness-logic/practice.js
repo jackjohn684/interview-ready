@@ -2,14 +2,28 @@ import { getNextPracticeProblem, getReadinessData, recommendedList } from "./cla
 import { targetTopics } from "./target-topics.js";
 import { delog, traceMethod } from "../shared/logging.js"
 import { randomElementInArray } from "./random.js";
+const getAcceptedSet = (recentAcceptedSubmissions) => {
+    let recentAccepted = new Set();
+  
+    let acList = recentAcceptedSubmissions?.data?.recentAcSubmissionList;
+    if (acList?.length > 0) {
+      for(let item of acList) {
+        recentAccepted.add(item.titleSlug);
+      }
+    }
+  
+    return recentAccepted;
+  }
 
 export async function getPracticeProblem(practiceType) {
     const allProblems = (await chrome.storage.local.get(["problemsKey"])).problemsKey;
+    const recentAcceptedData = (await chrome.storage.local.get(["recentSubmissionsKey"])).recentSubmissionsKey;
+    const recentAcceptedSet = getAcceptedSet(recentAcceptedData);
 
     if(practiceType == "suggested") {
         const acceptedSet = new Set();
         allProblems.data.problemsetQuestionList.questions.forEach((question) => {
-            if(question.status == "ac") {
+            if(question.status == "ac" || recentAcceptedSet.has(question.titleSlug)) {
                 acceptedSet.add(question.titleSlug);
             }
         });
@@ -32,7 +46,7 @@ export async function getPracticeProblem(practiceType) {
     } else if (practiceType == "review") {
         const acceptedList = [];
         allProblems.data.problemsetQuestionList.questions.forEach((question) => {
-            if(question.status == "ac") {
+            if(question.status == "ac" || recentAcceptedSet.has(question.titleSlug)) {
                 acceptedList.push(question.titleSlug);
             }
         });
