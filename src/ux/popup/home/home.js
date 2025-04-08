@@ -103,6 +103,11 @@ async function render() {
         <button class="clickable practice practice-hard" difficulty='hard' data-topic='${topic}'>🡕</button>
         <button class="clickable practice practice-random" difficulty='random' data-topic='${topic}'>🡕</button>
         <button difficulty='suggested' data-topic='${topic}' class='clickable practice ${styleClass}'>${topic} - ${text}</button>
+        <div class="suggested tooltip practice-suggested">suggested</div>
+        <div class="easy tooltip practice-easy">easy</div>
+        <div class="medium tooltip practice-medium">medium</div>
+        <div class="hard tooltip practice-hard">hard</div>
+        <div class="random tooltip practice-random">random</div>
         </div>`;
     };
 
