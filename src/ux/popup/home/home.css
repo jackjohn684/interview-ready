@@ -138,8 +138,7 @@ button.practice {
 
 .practice-random {
     background: linear-gradient(to right, #7e57c2, #2196f3, #26c6da, green, #eeff41, #f9a825, #ff5722, #f48fb1, #ef5350);
-      -webkit-background-clip: text;
-      background-clip: text;
+    -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
 }
