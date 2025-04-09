@@ -27,6 +27,11 @@ button {
     top: 12px;
     z-index: 2;
     background-color: #fafafa;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.8);
+    width: 80%;
+    left: 50%;
+    padding-left: 40px;
+    transform: translateX(-50%);
 }
 
 #legend-button {
@@ -94,10 +99,11 @@ button {
 .bigpractice {
     width: 88%;
     background-color: turquoise;
+    box-shadow: 0 0 2px rgba(0, 123, 255, 0.8);
     color: #002b5b;
     
     border: unset;
-    border-radius: 25px;
+    border-radius: 5px;
     margin: 2px;
     text-transform: lowercase;
 }
