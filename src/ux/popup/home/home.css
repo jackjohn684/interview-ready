@@ -153,6 +153,7 @@ button.practice {
 
 .tooltip.practice-random {
   -webkit-background-clip: text;
+  background-clip: text;
   background-image: linear-gradient(to right, #7e57c2, #2196f3, #26c6da, green, #eeff41, #f9a825, #ff5722, #f48fb1, #ef5350);
   -webkit-text-fill-color: transparent;
   text-shadow: none; /* Remove shadow for rainbow */
